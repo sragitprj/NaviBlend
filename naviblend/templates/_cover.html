@@ -1,0 +1,7 @@
+{# A blend cover: one circle per person (up to 6). Needs `ms` (people); optional `label`, `small`. #}
+{% set n = [ms|length, 6]|min %}
+{% set start, spread, solo = (12, 32, 22) if small else (22, 52, 38) %}
+<div class="cover{{ ' small' if small else '' }}" role="img" aria-label="Blend cover in everyone's colours">
+  {% for m in ms[:6] %}<div class="c" style="left:{{ ((start + loop.index0 * spread / (n - 1))|round|int) if n > 1 else solo }}px;background:{{ m.color }}"></div>{% endfor %}
+  {% if label %}<div class="lbl">{{ label }}</div>{% endif %}
+</div>

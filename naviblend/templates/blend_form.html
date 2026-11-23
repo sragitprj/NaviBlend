@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create a blend' if is_new else 'Edit blend' }} · NaviBlend{% endblock %}
+{% block body %}
+<main class="narrow">
+  <div class="page-head">
+    <h1>{{ 'Create a blend' if is_new else 'Edit blend' }}</h1>
+    <p>Pick who's in it and how it's mixed. You can change any of this later.</p>
+  </div>
+  {% include "_notices.html" %}
+  <form method="post" action="/blends/save" class="stack" id="blendform">
+    <input type="hidden" name="token" value="{{ csrf }}">
+    <input type="hidden" name="id" value="{{ b.id }}">
+
+    <section class="card stack">
+      <h2 style="margin:0">Who's in it</h2>
+      {% if not members %}
+      <p class="muted">Nobody has been added yet. <a href="/people">Add people first</a>.</p>
+      {% endif %}
+      <div class="pick-grid">
+        {% for m in members %}
+        <div class="pick" style="--c:{{ m.color }}">
+          <label class="pick-head">
+            <input type="checkbox" name="member" value="{{ m.id }}" {% if m.id in b.member_ids %}checked{% endif %}>
+            <span class="avatar sm" style="background:{{ m.color }}" aria-hidden="true">{{ m.name[:1]|upper }}</span>
+            <span class="pick-name">{{ m.name }}</span>
+          </label>
+          <label class="field pick-weight">
+            <span class="small">Weight <output>{{ b.weight(m.id) }}</output></span>
+            <input type="range" name="weight_{{ m.id }}" min="0" max="100" step="5" value="{{ b.weight(m.id) }}" oninput="this.parentElement.querySelector('output').textContent=this.value" aria-label="{{ m.name }}'s weight in this blend">
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="small muted" style="margin:0">Weight decides how much of each person's own taste goes in. Equal weights give everyone an equal share. <a href="/people">Add or edit people</a></p>
+    </section>
+
+    <div class="grid2">
+      <section class="card stack">
+        <h2 style="margin:0">Playlist</h2>
+        <label class="field">Name
+          <input type="text" name="name" value="{{ b.name }}" placeholder="e.g. Alex + Jordan Blend" maxlength="100">
+          <span class="hint">Leave blank to name it after the people in it.</span>
+        </label>
+        <label class="field">Length
+          <input type="range" name="length" min="20" max="150" step="5" value="{{ b.length }}" oninput="this.nextElementSibling.textContent=this.value+' tracks'">
+          <span class="hint">{{ b.length }} tracks</span>
+        </label>
+        <label class="field">Saved under whose account
+          <select name="owner_member_id">
+            <option value="0">First person in the blend</option>
+            {% for m in members %}<option value="{{ m.id }}" {% if b.owner_member_id == m.id %}selected{% endif %}>{{ m.name }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="check">Make it public so everyone in the blend sees it <input type="checkbox" name="public" {% if b.public %}checked{% endif %}></label>
+      </section>
+
+      <section class="card stack">
+        <h2 style="margin:0">Mix</h2>
+        <label class="field">Songs you all play
+          <input type="range" name="both_pct" min="0" max="100" step="5" value="{{ b.both_pct }}" oninput="this.nextElementSibling.textContent='about '+this.value+'%'">
+          <span class="hint">about {{ b.both_pct }}%</span>
+        </label>
+        <label class="field">New music
+          <input type="range" name="new_pct" min="0" max="60" step="5" value="{{ b.new_pct }}" oninput="this.nextElementSibling.textContent='about '+this.value+'%'">
+          <span class="hint">about {{ b.new_pct }}%: songs nobody has played yet, by artists similar to ones you like</span>
+        </label>
+        <label class="check">Alternate between each person's picks <input type="checkbox" name="interleave" {% if b.interleave %}checked{% endif %}></label>
+        <label class="field">Leave out songs played in the last
+          <select name="skip_recent_days">
+            {% for d, label in [(0, 'Don’t leave any out'), (3, '3 days'), (7, '7 days'), (14, '2 weeks'), (30, 'month')] %}
+            <option value="{{ d }}" {% if b.skip_recent_days == d %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+        </label>
+      </section>
+
+      <section class="card stack">
+        <h2 style="margin:0">Schedule</h2>
+        <div class="grid2">
+          <label class="field">Refresh
+            <select name="schedule_day">
+              {% for k, v in days.items() %}<option value="{{ k }}" {% if b.schedule_day == k %}selected{% endif %}>{{ v if k == 'daily' else 'Every ' ~ v }}</option>{% endfor %}
+              <option value="off" {% if b.schedule_day == 'off' %}selected{% endif %}>Only when I press Regenerate</option>
+            </select>
+          </label>
+          <label class="field">At
+            <input type="time" name="schedule_time" value="{{ b.schedule_time }}">
+          </label>
+        </div>
+        {% if next_run %}<p class="small muted" style="margin:0">Next refresh: {{ next_run }}</p>{% endif %}
+      </section>
+    </div>
+
+    <div class="row between">
+      <div>{% if not is_new %}<button class="btn danger" type="submit" form="deleteform">Delete blend</button>{% endif %}</div>
+      <div class="row">
+        <a class="btn" href="{{ '/' if is_new else '/blends/' ~ b.id }}">Cancel</a>
+        {% if is_new %}
+        <button class="btn" type="submit" name="build" value="preview">Create and preview</button>
+        <button class="btn primary" type="submit" name="build" value="save">Create and build</button>
+        {% else %}
+        <button class="btn primary" type="submit">Save changes</button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+  {% if not is_new %}
+  <form id="deleteform" method="post" action="/blends/{{ b.id }}/delete" onsubmit='return confirm("Delete this blend? Its playlist stays on your music server.")'>
+    <input type="hidden" name="token" value="{{ csrf }}">
+  </form>
+  {% endif %}
+</main>
+{% endblock %}

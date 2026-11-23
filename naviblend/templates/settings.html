@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Settings · NaviBlend{% endblock %}
+{% block body %}
+<main class="narrow">
+  <div class="page-head">
+    <h1>Settings</h1>
+    <p>Server-wide settings. Each blend's mix and schedule are on the blend itself.</p>
+  </div>
+  {% include "_notices.html" %}
+  <form method="post" action="/settings" class="stack">
+    <input type="hidden" name="token" value="{{ csrf }}">
+    <section class="card stack">
+      <h2 style="margin:0">Connections</h2>
+      <label class="field">Music server address
+        <input type="url" name="server_url" value="{{ s.server_url }}" required>
+        <span class="hint">Changing the server starts each blend's playlist afresh on the new one.</span>
+      </label>
+      <label class="field">Last.fm API key
+        <input type="password" name="lastfm_api_key" autocomplete="off" placeholder="{{ 'Saved. Leave blank to keep, or type - to remove' if has_lastfm else 'Optional' }}">
+        <span class="hint">Only needed for Last.fm usernames. Get a free key at last.fm/api. ListenBrainz needs no key.</span>
+      </label>
+    </section>
+    <div class="row end"><button class="btn primary" type="submit">Save settings</button></div>
+  </form>
+</main>
+{% endblock %}

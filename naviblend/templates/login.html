@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Sign in · NaviBlend{% endblock %}
+{% block body %}
+<main class="center">
+  <div class="row" style="justify-content:center;margin-bottom:28px">
+    <span class="brand">{{ logo(members|map(attribute='color')|list) }}NaviBlend</span>
+  </div>
+  {% include "_notices.html" %}
+  <form method="post" action="/login" class="card stack" style="padding:32px">
+    <input type="hidden" name="token" value="{{ csrf }}">
+    <input type="hidden" name="next" value="{{ next }}">
+    <h1 style="margin:0;font-size:26px">Sign in</h1>
+    <label class="field">NaviBlend password
+      <input type="password" name="password" required autofocus autocomplete="current-password">
+    </label>
+    <div class="row end"><button class="btn primary" type="submit">Sign in</button></div>
+  </form>
+</main>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Set up NaviBlend{% endblock %}
+{% block body %}
+<main class="center">
+  <div class="row" style="justify-content:center;margin-bottom:28px">
+    <span class="brand">{{ logo([]) }}NaviBlend</span>
+  </div>
+  <ol class="steps" aria-label="Setup steps">
+    <li class="on">1 · Server</li><li>2 · People</li><li>3 · Blends</li>
+  </ol>
+  {% include "_notices.html" %}
+  <form method="post" action="/setup" class="card stack" style="padding:32px">
+    <input type="hidden" name="token" value="{{ csrf }}">
+    <div>
+      <h1 style="margin:0 0 6px;font-size:28px">Connect your music server</h1>
+      <p class="muted" style="margin:0">NaviBlend reads listening history and saves the blend playlist through the Subsonic API, so it works with Navidrome, Gonic and other Subsonic servers.</p>
+    </div>
+    <label class="field">Server address
+      <input type="url" name="server_url" value="{{ server_url }}" required placeholder="http://192.168.1.10:4533">
+      <span class="hint">The address you'd use in a browser. Inside Docker, the container name works too, e.g. http://navidrome:4533</span>
+    </label>
+    {% if need_password %}
+    <div class="grid2">
+      <label class="field">NaviBlend password
+        <input type="password" name="password" minlength="8" required autocomplete="new-password">
+      </label>
+      <label class="field">Type it again
+        <input type="password" name="password2" minlength="8" required autocomplete="new-password">
+      </label>
+    </div>
+    <p class="muted small" style="margin:-6px 0 0">This protects the NaviBlend page itself. It isn't your music server password.</p>
+    {% endif %}
+    <div class="row end"><button class="btn primary" type="submit">Connect and continue</button></div>
+  </form>
+</main>
+{% endblock %}

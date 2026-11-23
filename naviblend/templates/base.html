@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}NaviBlend{% endblock %}</title>
+<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css?v={{ version }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+{% macro logo(cols) -%}
+<svg width="34" height="24" viewBox="0 0 34 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="{{ cols[0] if cols|length > 0 else '#5B9BFF' }}" opacity=".9"/><circle cx="22" cy="12" r="11" fill="{{ cols[1] if cols|length > 1 else '#FFA24C' }}" opacity=".85"/></svg>
+{%- endmacro %}
+{% if nav %}
+<header class="top">
+  <a class="brand" href="/">{{ logo(members|map(attribute='color')|list) }}NaviBlend</a>
+  <nav class="nav" aria-label="Main">
+    <a href="/" {% if nav == 'blends' %}aria-current="page"{% endif %}>Blends</a>
+    <a href="/people" {% if nav == 'people' %}aria-current="page"{% endif %}>People</a>
+    <a href="/settings" {% if nav == 'settings' %}aria-current="page"{% endif %}>Settings</a>
+  </nav>
+  <div class="conn">
+    <span class="dot" aria-hidden="true"></span><span>{{ server }}</span>
+    {% if not auth_disabled %}
+    <form method="post" action="/logout"><button class="linkbtn" type="submit">Sign out</button></form>
+    {% endif %}
+  </div>
+</header>
+{% endif %}
+{% block body %}{% endblock %}
+<footer>NaviBlend {{ version }} · <a href="https://github.com/sragitprj/NaviBlend">GitHub</a></footer>
+</body>
+</html>

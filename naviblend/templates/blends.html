@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Blends · NaviBlend{% endblock %}
+{% block head %}{% if any_running %}<meta http-equiv="refresh" content="4">{% endif %}{% endblock %}
+{% block body %}
+<main>
+  <div class="row between page-head" style="margin-bottom:24px">
+    <div>
+      <h1>Your blends</h1>
+      <p style="margin:0">Each blend is a shared playlist for the people you pick, rebuilt on its own schedule.</p>
+    </div>
+    <a class="btn primary" href="/blends/new">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Create a blend</a>
+  </div>
+  {% include "_notices.html" %}
+
+  {% if not cards %}
+  <section class="card empty">
+    {% with ms = members[:3], label = '', small = false %}<div style="display:flex;justify-content:center">{% include "_cover.html" %}</div>{% endwith %}
+    <h1>No blends yet</h1>
+    <p class="muted">Pick two or more people and NaviBlend mixes their listening into one playlist.</p>
+    <div class="row" style="justify-content:center;margin-top:16px"><a class="btn primary" href="/blends/new">Create your first blend</a></div>
+  </section>
+  {% else %}
+  <div class="blend-grid">
+    {% for c in cards %}
+    <a class="blend-card" href="/blends/{{ c.blend.id }}">
+      {% with ms = c.members, label = c.title, small = true %}{% include "_cover.html" %}{% endwith %}
+      <div class="bc-body">
+        <h2>{{ c.name }}</h2>
+        <p class="muted small">{{ c.members|length }} {{ 'person' if c.members|length == 1 else 'people' }}
+          {% if c.last %} · {{ c.last.result.tracks|length }} tracks{% if c.last.match_pct is not none %} · {{ c.last.match_pct }}% match{% endif %}{% endif %}</p>
+        <p class="small" style="margin:8px 0 0">
+          {% if c.running %}<span class="row" style="gap:8px"><span class="spinner" aria-hidden="true"></span> Building now…</span>
+          {% elif c.last %}<span class="muted">Last built {{ c.last.created_at|date }}</span>
+          {% else %}<span class="muted">Not built yet</span>{% endif %}
+        </p>
+        <p class="small muted" style="margin:2px 0 0">{{ 'Next: ' ~ c.next_run if c.next_run else 'Refreshes when you press Regenerate' }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    <a class="blend-card add" href="/blends/new">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Create a blend</span>
+    </a>
+  </div>
+  {% endif %}
+</main>
+{% endblock %}

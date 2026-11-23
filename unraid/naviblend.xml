@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>NaviBlend</Name>
+  <Repository>ghcr.io/sragitprj/naviblend:latest</Repository>
+  <Registry>https://github.com/sragitprj/NaviBlend/pkgs/container/naviblend</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/sragitprj/NaviBlend/issues</Support>
+  <Project>https://github.com/sragitprj/NaviBlend</Project>
+  <Overview>A Spotify-style Blend for Navidrome and other Subsonic servers. Mixes two or more people's listening into one shared weekly playlist, with a web interface to choose who's in it and how it's mixed.</Overview>
+  <Category>MediaApp:Music</Category>
+  <WebUI>http://[IP]:[PORT:4545]/</WebUI>
+  <Icon>https://raw.githubusercontent.com/sragitprj/NaviBlend/main/naviblend/static/logo.svg</Icon>
+  <ExtraParams>--user 99:100</ExtraParams>
+  <Config Name="Web UI port" Target="4545" Default="4545" Mode="tcp" Description="Port for the NaviBlend web interface" Type="Port" Display="always" Required="true">4545</Config>
+  <Config Name="Config" Target="/config" Default="/mnt/user/appdata/naviblend" Mode="rw" Description="Settings, encrypted logins and blend history" Type="Path" Display="always" Required="true">/mnt/user/appdata/naviblend</Config>
+  <Config Name="TZ" Target="TZ" Default="Europe/London" Description="Time zone for the scheduled refresh" Type="Variable" Display="always" Required="false">Europe/London</Config>
+</Container>
