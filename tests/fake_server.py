@@ -50,7 +50,20 @@ class FakeSubsonic:
 
     # -- dispatcher -----------------------------------------------------
     def handler(self, request: httpx.Request) -> httpx.Response:
-        method = request.url.path.rsplit("/", 1)[-1]
+        path = request.url.path
+        if path == "/auth/login":  # Navidrome native API
+            import json
+            body = json.loads(request.content or b"{}")
+            if self.users.get(body.get("username")) == body.get("password"):
+                return httpx.Response(200, json={"token": "tok-" + body["username"]})
+            return httpx.Response(401, json={"error": "bad login"})
+        if path.startswith("/api/playlist/") and path.endswith("/image"):
+            pid = path.split("/")[3]
+            if not request.headers.get("x-nd-authorization", "").startswith("Bearer tok-") or pid not in self.playlists:
+                return httpx.Response(403)
+            self.playlists[pid]["image"] = request.content
+            return httpx.Response(200, json={})
+        method = path.rsplit("/", 1)[-1]
         pairs = parse_qsl(request.url.query.decode())
         q = dict(pairs)
         self.calls.append(method)

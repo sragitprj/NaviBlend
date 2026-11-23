@@ -137,3 +137,27 @@ def test_migrates_a_v01_single_blend(tmp_path):
     assert (b.name, b.length, b.playlist_id, b.schedule_day, b.member_ids) == ("Kitchen", 70, "pl9", "fri", [1, 2])
     assert b.weight(1) == 60 and b.weight(2) == 40
     assert len(s.runs(b.id)) == 1
+
+
+def test_cover_image_is_uploaded(fake, store):
+    bid = make_blend(store)
+    service.run_now(store, bid)
+    run = store.runs(bid, 1)[0]
+    assert run.result.get("cover") is True
+    img = fake.playlists[run.result["playlist_id"]]["image"]
+    assert b"PNG" in img[:1000] and b'name="image"' in img
+
+
+def test_cover_can_be_turned_off(fake, store):
+    bid = make_blend(store, cover=False)
+    service.run_now(store, bid)
+    run = store.runs(bid, 1)[0]
+    assert "cover" not in run.result and "image" not in fake.playlists[run.result["playlist_id"]]
+
+
+def test_cover_png_for_groups():
+    from naviblend.cover import make_cover
+    for n in range(1, 8):
+        png = make_cover(["#5B9BFF", "#FFA24C", "#3DD6B0", "#FF6B9A", "#B794F6", "#F5D547", "#ffffff"][:n],
+                         [f"P{i}" for i in range(n)], "Blend")
+        assert png[:8] == b"\x89PNG\r\n\x1a\n"
