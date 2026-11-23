@@ -17,6 +17,7 @@ NaviBlend brings it to [Navidrome](https://www.navidrome.org/) (and Gonic, Ampac
 - **Shared playlists saved straight to your server**, rebuilt on a schedule (weekly by default), so they show up in every app you already use.
 - **Every track says why it's there**: songs you both play, each person's favourites, and new music from your library that none of you has played yet.
 - **A taste-match score** and the artists you all love.
+- **Cover art made for each blend**: everyone's colours as overlapping circles with their names, uploaded as the playlist image (Navidrome 0.61+).
 - **You choose the mix, per blend**: who's in it, how much each person counts, how much is shared or new, playlist length, refresh day and time.
 - **Web interface** for setup and settings. No config files to edit.
 - **Optional ListenBrainz and Last.fm history**, so listening from other apps counts too.

@@ -6,3 +6,4 @@ python-multipart==0.0.20
 itsdangerous==2.2.0
 cryptography==44.0.3
 apscheduler==3.11.0
+pillow==11.2.1
