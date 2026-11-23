@@ -1,0 +1,12 @@
+services:
+  naviblend:
+    image: ghcr.io/sragitprj/naviblend:latest
+    container_name: naviblend
+    restart: unless-stopped
+    user: "1000:1000"            # match the owner of ./config
+    ports:
+      - "4545:4545"
+    environment:
+      - TZ=Europe/London         # so the weekly refresh runs at your local time
+    volumes:
+      - ./config:/config
