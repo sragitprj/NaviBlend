@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
@@ -235,6 +235,16 @@ def create_app(store: Store | None = None, start_scheduler: bool = True) -> Fast
             return back(f"/blends/{blend_id}", request=request)
         return blend_view(request, b, run)
 
+    @app.get("/blends/{blend_id}/cover.png")
+    def blend_cover(request: Request, blend_id: int):
+        if not logged_in(request):
+            return Response(status_code=401)
+        b = store.blend(blend_id)
+        if b is None:
+            return Response(status_code=404)
+        return Response(service.cover_png(b, store.blend_members(b)), media_type="image/png",
+                        headers={"Cache-Control": "no-cache"})
+
     @app.post("/blends/{blend_id}/run")
     def blend_now(request: Request, blend_id: int, mode: str = Form("save"), token: str = Form("")):
         if (r := gate(request)) is not None:
@@ -288,6 +298,7 @@ def create_app(store: Store | None = None, start_scheduler: bool = True) -> Fast
         b.skip_recent_days = _int(form.get("skip_recent_days"), 0, 60, 0)
         b.interleave = bool(form.get("interleave"))
         b.public = bool(form.get("public"))
+        b.cover = bool(form.get("cover"))
         day = str(form.get("schedule_day", "mon"))
         b.schedule_day = day if day in DAYS or day == "off" else "mon"
         tm = str(form.get("schedule_time", "06:00"))

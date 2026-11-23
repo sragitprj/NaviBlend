@@ -61,6 +61,7 @@ class Blend:
     schedule_time: str = "06:00"
     public: bool = True
     owner_member_id: int = 0       # 0 = first person in the blend
+    cover: bool = True             # upload a generated cover image (Navidrome)
     playlist_id: str = ""
 
     def weight(self, member_id: int) -> int:

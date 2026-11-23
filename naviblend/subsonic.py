@@ -156,6 +156,21 @@ class Subsonic:
             return []
         return body.get("artist", {}).get("album", []) or []
 
+    # -- Navidrome-only extras --------------------------------------------
+    def navidrome_upload_playlist_cover(self, playlist_id: str, png: bytes) -> bool:
+        """Set a playlist's cover through Navidrome's own API (0.61+). Other servers: returns False."""
+        try:
+            r = self.http.post(f"{self.base}/auth/login", json={"username": self.username, "password": self.password})
+            if r.status_code != 200 or not r.json().get("token"):
+                return False
+            token = r.json()["token"]
+            r = self.http.post(f"{self.base}/api/playlist/{playlist_id}/image",
+                               headers={"x-nd-authorization": f"Bearer {token}"},
+                               files={"image": ("naviblend-cover.png", png, "image/png")})
+            return r.status_code in (200, 201, 204)
+        except (httpx.HTTPError, ValueError):
+            return False
+
     # -- playlists ------------------------------------------------------
     def playlists(self) -> list[dict[str, Any]]:
         body = self.call("getPlaylists")

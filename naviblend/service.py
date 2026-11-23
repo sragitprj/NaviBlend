@@ -6,6 +6,7 @@ import threading
 from datetime import datetime
 
 from .blend import run_blend
+from .cover import make_cover
 from .store import Blend, Member, Store
 from .subsonic import Subsonic, SubsonicError
 
@@ -23,6 +24,12 @@ def people_title(names: list[str]) -> str:
 
 def playlist_name(b: Blend, members: list[Member]) -> str:
     return b.name or f"{people_title([m.name for m in members])} Blend"
+
+
+def cover_png(b: Blend, members: list[Member]) -> bytes:
+    name = playlist_name(b, members)
+    subtitle = "Blend" if not b.name else name
+    return make_cover([m.color for m in members], [m.name for m in members], subtitle)
 
 
 def blend_settings(b: Blend, store: Store) -> dict[str, str]:
@@ -62,6 +69,8 @@ def run_now(store: Store, blend_id: int, write: bool = True) -> int | None:
                 with Subsonic(server, owner.username, owner.password) as c:
                     pid = c.write_playlist(name, [t["id"] for t in data["tracks"]], b.playlist_id,
                                            public=b.public, comment=comment)
+                    if b.cover and pid:
+                        data["cover"] = c.navidrome_upload_playlist_cover(pid, cover_png(b, members))
                 fresh = store.blend(blend_id)  # may have been edited while we were working
                 if fresh is not None:
                     fresh.playlist_id = pid
